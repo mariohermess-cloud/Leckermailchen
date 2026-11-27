@@ -40,6 +40,8 @@ export const keinAufleger = (): AuflegerKonfig => ({
   y: 0,
   rand: true,
   randFarbe: '#f6f3ee',
+  katalog: null,
+  rechte: false,
 });
 
 export function neueEtage(teil: Partial<EtageKonfig> = {}): EtageKonfig {

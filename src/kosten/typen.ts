@@ -97,10 +97,27 @@ export interface Einstellungen {
   portionFlaeche: number;
   /** Richtpreis im Konfigurator für Kunden anzeigen */
   preisAnzeigen: boolean;
+  /** E-Mail-Adresse für Wunschanfragen ('' = Anfrage-Knopf ausblenden) */
+  anfrageEmail: string;
+}
+
+/** Druckmotiv aus dem eigenen Katalog der Backstube (z. B. selbst gestaltete Trend-Motive). */
+export interface KatalogMotiv {
+  id: string;
+  name: string;
+  /** Themengruppe, z. B. „Superhelden“, „Gaming“ */
+  thema: string;
+  /** Bild als Data-URL (JPEG) */
+  bild: string;
+  /** Material-/Druckkosten in € (fließen in die Selbstkosten ein) */
+  kosten: number;
+  trend: boolean;
+  aktiv: boolean;
 }
 
 export interface KostenDaten {
   version: 1;
+  katalog: KatalogMotiv[];
   zutaten: Zutat[];
   rezepte: Rezept[];
   zuordnung: Zuordnung;

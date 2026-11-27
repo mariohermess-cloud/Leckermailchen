@@ -154,4 +154,224 @@ export const auflegerMotive: AuflegerMotiv[] = [
       ctx.fill();
     },
   },
+
+  /* ---------- Eigene Trend-Motive (frei gestaltet, keine Lizenzfiguren) ---------- */
+  {
+    id: 'comic',
+    name: 'Comic „POW!“',
+    zeichne: (ctx, s) => {
+      ctx.fillStyle = '#ffd23f';
+      ctx.fillRect(0, 0, s, s);
+      // Halbton-Punkte
+      ctx.fillStyle = '#f4a52a';
+      for (let y = 0; y < 22; y++) for (let x = 0; x < 22; x++) {
+        const r = (s / 22) * 0.18 * (0.4 + (x + y) / 44);
+        ctx.beginPath();
+        ctx.arc(((x + (y % 2) * 0.5) * s) / 22, (y * s) / 22, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Strahlen
+      ctx.fillStyle = '#e8463f';
+      for (let i = 0; i < 16; i += 2) {
+        const a1 = (i / 16) * Math.PI * 2, a2 = ((i + 1) / 16) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(s / 2, s / 2);
+        ctx.lineTo(s / 2 + Math.cos(a1) * s, s / 2 + Math.sin(a1) * s);
+        ctx.lineTo(s / 2 + Math.cos(a2) * s, s / 2 + Math.sin(a2) * s);
+        ctx.fill();
+      }
+      // Explosionsblase
+      ctx.beginPath();
+      for (let i = 0; i < 28; i++) {
+        const r = s * (i % 2 === 0 ? 0.36 : 0.26) * (0.92 + ((i * 37) % 11) / 60);
+        const a = (i / 28) * Math.PI * 2;
+        ctx.lineTo(s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r);
+      }
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.lineWidth = s * 0.018;
+      ctx.strokeStyle = '#1c1c1c';
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(s / 2, s / 2);
+      ctx.rotate(-0.15);
+      ctx.font = `900 ${s * 0.2}px Impact, 'Arial Black', system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = s * 0.03;
+      ctx.strokeStyle = '#1c1c1c';
+      ctx.strokeText('POW!', 0, 0);
+      ctx.fillStyle = '#2f6fd0';
+      ctx.fillText('POW!', 0, 0);
+      ctx.restore();
+    },
+  },
+  {
+    id: 'superheld',
+    name: 'Superheld-Wappen',
+    zeichne: (ctx, s) => {
+      // Nachthimmel über der Stadt
+      himmel(ctx, s, '#1d2b64', '#3c6fd1');
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 40; i++) {
+        ctx.globalAlpha = 0.4 + ((i * 13) % 6) / 10;
+        ctx.fillRect(((i * 97) % 100) / 100 * s, ((i * 53) % 45) / 100 * s, s * 0.006, s * 0.006);
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#121a3d';
+      const haeuser = [0.12, 0.3, 0.2, 0.42, 0.26, 0.36, 0.18, 0.46, 0.28, 0.22];
+      haeuser.forEach((h, i) => ctx.fillRect((i / haeuser.length) * s, s * (1 - h), s / haeuser.length + 1, s * h));
+      ctx.fillStyle = '#ffd86b';
+      haeuser.forEach((h, i) => {
+        for (let y = 1 - h + 0.04; y < 0.97; y += 0.06) for (let x = 0.015; x < 0.08; x += 0.035)
+          if (((i * 7 + Math.round(y * 50) + Math.round(x * 100)) % 3) === 0) ctx.fillRect((i / haeuser.length + x) * s, y * s, s * 0.014, s * 0.022);
+      });
+      // Wappen: Schild mit Blitz
+      const w = s * 0.46, top = s * 0.18, cx = s / 2;
+      const schild = () => {
+        ctx.beginPath();
+        ctx.moveTo(cx - w / 2, top);
+        ctx.lineTo(cx + w / 2, top);
+        ctx.lineTo(cx + w / 2, top + w * 0.55);
+        ctx.quadraticCurveTo(cx + w / 2, top + w * 0.95, cx, top + w * 1.15);
+        ctx.quadraticCurveTo(cx - w / 2, top + w * 0.95, cx - w / 2, top + w * 0.55);
+        ctx.closePath();
+      };
+      ctx.shadowColor = 'rgba(0,0,0,0.35)';
+      ctx.shadowBlur = s * 0.03;
+      schild();
+      ctx.fillStyle = '#ffd23f';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = s * 0.02;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(cx - w * 0.5, top);
+      const k = w / 100;
+      ctx.beginPath();
+      ctx.moveTo(60 * k, 8 * k);
+      ctx.lineTo(26 * k, 60 * k);
+      ctx.lineTo(48 * k, 60 * k);
+      ctx.lineTo(38 * k, 108 * k);
+      ctx.lineTo(78 * k, 46 * k);
+      ctx.lineTo(55 * k, 46 * k);
+      ctx.lineTo(68 * k, 8 * k);
+      ctx.closePath();
+      ctx.fillStyle = '#e8463f';
+      ctx.fill();
+      ctx.restore();
+    },
+  },
+  {
+    id: 'pixel',
+    name: 'Pixel-Spiel „Level up“',
+    zeichne: (ctx, s) => {
+      const n = 16, p = s / n;
+      himmel(ctx, s, '#5ec8f2', '#bfeaff');
+      // Wolken
+      ctx.fillStyle = '#ffffff';
+      for (const [x, y, b] of [[2, 2, 3], [10, 3, 4]]) {
+        ctx.fillRect(x * p, y * p, b * p, p);
+        ctx.fillRect((x + 1) * p, (y - 1) * p, (b - 2) * p, p);
+      }
+      // Hügel und Boden
+      const boden = [11, 11, 10, 10, 9, 9, 10, 11, 11, 11, 10, 9, 9, 10, 11, 11];
+      boden.forEach((h, x) => {
+        ctx.fillStyle = '#58b368';
+        ctx.fillRect(x * p, h * p, p, p);
+        for (let y = h + 1; y < n; y++) {
+          ctx.fillStyle = (x + y) % 3 === 0 ? '#8a5a3a' : '#a8714a';
+          ctx.fillRect(x * p, y * p, p, p);
+        }
+      });
+      // Münzen
+      ctx.fillStyle = '#f4c430';
+      for (const x of [4, 6, 8]) ctx.fillRect(x * p + p * 0.25, 6 * p, p * 0.5, p * 0.8);
+      // Herzen (Leben)
+      ctx.fillStyle = '#e8463f';
+      const herz = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'];
+      const q = p * 0.28;
+      for (let i = 0; i < 3; i++)
+        herz.forEach((zeile, y) => [...zeile].forEach((c, x) => c === 'X' && ctx.fillRect(p * 0.5 + i * 8 * q + x * q, p * 0.5 + y * q, q, q)));
+      // Schrift
+      ctx.font = `700 ${p * 1.5}px 'Courier New', monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#1c1c1c';
+      ctx.fillText('LEVEL UP!', s / 2 + p * 0.12, p * 8.6 + p * 0.12);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('LEVEL UP!', s / 2, p * 8.6);
+    },
+  },
+  {
+    id: 'weltraum',
+    name: 'Weltraum-Abenteuer',
+    zeichne: (ctx, s) => {
+      himmel(ctx, s, '#0b0f2e', '#3a1f6b');
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 70; i++) {
+        ctx.globalAlpha = 0.3 + ((i * 7) % 7) / 10;
+        ctx.beginPath();
+        ctx.arc(((i * 61) % 100) / 100 * s, ((i * 37) % 100) / 100 * s, s * (0.002 + ((i * 3) % 4) * 0.0015), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      // Planet mit Ring
+      ctx.fillStyle = '#f2a8c0';
+      ctx.beginPath();
+      ctx.arc(s * 0.74, s * 0.28, s * 0.13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f4d03f';
+      ctx.lineWidth = s * 0.018;
+      ctx.beginPath();
+      ctx.ellipse(s * 0.74, s * 0.28, s * 0.22, s * 0.05, -0.35, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#7fd1e8';
+      ctx.beginPath();
+      ctx.arc(s * 0.18, s * 0.78, s * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+      // Rakete
+      ctx.save();
+      ctx.translate(s * 0.42, s * 0.58);
+      ctx.rotate(0.6);
+      const r = s * 0.1;
+      ctx.fillStyle = '#f6a623';
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.45, r * 1.6);
+      ctx.lineTo(0, r * 2.6);
+      ctx.lineTo(r * 0.45, r * 1.6);
+      ctx.fill();
+      ctx.fillStyle = '#e8463f';
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.6, r * 0.8);
+      ctx.lineTo(-r * 1.1, r * 1.8);
+      ctx.lineTo(r * 1.1, r * 1.8);
+      ctx.lineTo(r * 0.6, r * 0.8);
+      ctx.fill();
+      ctx.fillStyle = '#f7f3ea';
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 1.8);
+      ctx.quadraticCurveTo(r * 0.75, -r * 0.8, r * 0.6, r * 1.6);
+      ctx.lineTo(-r * 0.6, r * 1.6);
+      ctx.quadraticCurveTo(-r * 0.75, -r * 0.8, 0, -r * 1.8);
+      ctx.fill();
+      ctx.fillStyle = '#e8463f';
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 1.8);
+      ctx.quadraticCurveTo(r * 0.45, -r * 1.3, r * 0.55, -r * 0.9);
+      ctx.lineTo(-r * 0.55, -r * 0.9);
+      ctx.quadraticCurveTo(-r * 0.45, -r * 1.3, 0, -r * 1.8);
+      ctx.fill();
+      ctx.fillStyle = '#3f8fd2';
+      ctx.strokeStyle = '#c9d2d5';
+      ctx.lineWidth = r * 0.12;
+      ctx.beginPath();
+      ctx.arc(0, -r * 0.1, r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    },
+  },
 ];

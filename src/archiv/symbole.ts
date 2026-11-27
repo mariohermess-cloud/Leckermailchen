@@ -322,4 +322,30 @@ export const symbole: SymbolEintrag[] = [
     starter: true,
     ebenen: [{ d: kreis(50, 50, 44), farbe: 'farbe', ebene: 0 }],
   },
+  {
+    id: 'blitz',
+    name: 'Blitz',
+    kategorie: 'Helden & Gaming',
+    ebenen: [{ d: 'M60 4L20 56H45L36 96L80 40H55L68 4Z', farbe: 'farbe', ebene: 0 }],
+  },
+  {
+    id: 'comicstern',
+    name: 'Comic-Explosion',
+    kategorie: 'Helden & Gaming',
+    zweifarbig: true,
+    ebenen: [
+      { d: stern(12, 48, 32, 50, 50), farbe: 'farbe', ebene: 0 },
+      { d: stern(12, 30, 19, 50, 50), farbe: 'farbe2', ebene: 1 },
+    ],
+  },
+  {
+    id: 'rakete',
+    name: 'Rakete',
+    kategorie: 'Helden & Gaming',
+    zweifarbig: true,
+    ebenen: [
+      { d: 'M50 4C66 18 70 40 66 70H34C30 40 34 18 50 4ZM34 58L18 80V88L34 76ZM66 58L82 80V88L66 76Z', farbe: 'farbe', ebene: 0 },
+      { d: 'M50 26A9 9 0 1 1 49.9 26ZM40 74H60L56 96H44Z', farbe: 'farbe2', ebene: 1 },
+    ],
+  },
 ];

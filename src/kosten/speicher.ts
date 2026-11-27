@@ -24,6 +24,7 @@ function ergaenze(roh: Partial<KostenDaten>): KostenDaten {
   const ei = (roh.einstellungen ?? {}) as Partial<KostenDaten['einstellungen']>;
   return {
     version: 1,
+    katalog: Array.isArray(roh.katalog) ? roh.katalog : s.katalog,
     zutaten: Array.isArray(roh.zutaten) ? roh.zutaten : s.zutaten,
     rezepte: Array.isArray(roh.rezepte) ? roh.rezepte : s.rezepte,
     zuordnung: {
@@ -85,14 +86,17 @@ class KostenSpeicher {
   }
 
   /** Nach jeder Bearbeitung aufrufen: speichert lokal und benachrichtigt. */
-  geaendert(): void {
+  /** @returns false, wenn der Browser nicht speichern konnte (privater Modus oder Speicher voll) */
+  geaendert(): boolean {
+    let ok = true;
     try {
       localStorage.setItem(SCHLUESSEL, JSON.stringify(this.daten));
     } catch {
-      /* Speichern nicht möglich (privater Modus) – Änderungen gelten bis zum Neuladen */
+      ok = false;
     }
     this.quelle = 'lokal';
     this.melden();
+    return ok;
   }
 
   exportieren(): string {

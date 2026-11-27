@@ -9,6 +9,7 @@ import {
 } from '../modell/konfig';
 import type {
   AuflegerKonfig,
+  AuflegerMotiv,
   BorduereKonfig,
   EtageKonfig,
   KuchenKonfig,
@@ -24,6 +25,8 @@ import type {
 import { kosten } from '../kosten/speicher';
 import { berechne, euro } from '../kosten/rechner';
 import { auswahl, farbwahl, feld, h, kacheln, knopf, prozent, regler, schalter, svg, textfeld } from './elemente';
+import { anfrageSenden } from './anfrage';
+import { bildEinlesen } from './bild';
 import type { Store } from './store';
 
 export interface PanelAktionen {
@@ -76,6 +79,7 @@ export class Panel {
       this.abschnitt('motive', 'Motive', this.motive(), this.k.symbole.length),
       this.abschnitt('deko', 'Deko & Streusel', this.deko(), this.k.topper.length + (this.k.streusel.typ !== 'keine' ? 1 : 0)),
       this.abschnitt('platte', 'Tortenplatte', this.platte()),
+      ...(kosten.daten.einstellungen.anfrageEmail.trim() ? [this.abschnitt('anfrage', 'Anfrage senden', this.anfrage())] : []),
       this.fuss(),
       ...(this.preisLeiste() ?? []),
     );
@@ -182,6 +186,42 @@ export class Panel {
       farbwahl('Farbe des Kuchens', this.etage.farbe, (hex) => this.setze((k) => (k.etagen[i].farbe = hex))),
       ...this.rezeptWahl(i),
     ].filter((n): n is HTMLElement => n !== null);
+  }
+
+  /** Motivkatalog der Backstube (Trend zuerst) und frei gezeichnete Beispielmotive als Bildkacheln. */
+  private motivWahl(): HTMLElement {
+    const a = this.k.aufleger;
+    const raster = h('div', { class: 'motivwahl', role: 'radiogroup', 'aria-label': 'Motiv' });
+    const kachel = (name: string, bild: string, aktiv: boolean, trend: boolean, waehle: () => void) => {
+      const b = h(
+        'button',
+        { type: 'button', class: `motiv-kachel${aktiv ? ' aktiv' : ''}`, 'aria-pressed': aktiv, title: name },
+        h('img', { src: bild, alt: '', loading: 'lazy' }),
+        h('span', {}, name),
+        trend ? h('em', { class: 'trend' }, 'Trend') : null,
+      );
+      b.addEventListener('click', waehle);
+      raster.append(b);
+    };
+    const katalog = kosten.daten.katalog.filter((m) => m.aktiv).sort((x, y) => Number(y.trend) - Number(x.trend) || x.thema.localeCompare(y.thema, 'de'));
+    for (const m of katalog) {
+      kachel(m.name, m.bild, a.katalog === m.id, m.trend, () =>
+        this.umbau((k) => {
+          k.aufleger.bild = m.bild;
+          k.aufleger.katalog = m.id;
+        }),
+      );
+    }
+    for (const m of archiv.auflegerMotive) {
+      kachel(m.name, motivVorschau(m), a.bild === null && a.motiv === m.id, false, () =>
+        this.umbau((k) => {
+          k.aufleger.bild = null;
+          k.aufleger.katalog = null;
+          k.aufleger.motiv = m.id;
+        }),
+      );
+    }
+    return h('div', { class: 'feld' }, h('span', { class: 'feld-name' }, 'Motiv wählen'), raster);
   }
 
   private rezeptWahl(i: number): HTMLElement[] {
@@ -312,17 +352,32 @@ export class Panel {
       teile.push(h('p', { class: 'hinweis' }, 'Essbarer Aufleger mit eigenem Foto oder Motiv – rund, rechteckig oder über die ganze Torte.'));
       return teile;
     }
+    teile.push(this.motivWahl());
     const datei = h('input', { type: 'file', accept: 'image/*', class: 'versteckt' });
     datei.addEventListener('change', () => {
       const file = datei.files?.[0];
       if (!file) return;
-      void bildEinlesen(file).then((url) => this.umbau((k) => (lies(k).bild = url)));
+      void bildEinlesen(file).then((url) =>
+        this.umbau((k) => {
+          lies(k).bild = url;
+          lies(k).katalog = null;
+        }),
+      );
     });
+    const eigenes = a.bild !== null && a.katalog === null;
+    const hochladen = knopf(eigenes ? 'Anderes Foto wählen' : 'Eigenes Foto hochladen', () => datei.click(), 'haupt');
+    hochladen.disabled = !a.rechte;
     teile.push(
-      h('div', { class: 'knopfreihe' }, knopf(a.bild ? 'Anderes Foto wählen' : 'Eigenes Foto hochladen', () => datei.click(), 'haupt'), a.bild ? knopf('Foto entfernen', () => this.umbau((k) => (lies(k).bild = null))) : null, datei),
-      h('p', { class: 'hinweis' }, 'Das Foto bleibt auf deinem Gerät – es wird nur für die Vorschau verwendet.'),
+      h(
+        'div',
+        { class: 'karte' },
+        schalter('Ich besitze die Rechte an meinem Bild (eigenes Foto oder selbst gestaltet – keine geschützten Figuren oder Logos).', a.rechte, (an) =>
+          this.umbau((k) => (lies(k).rechte = an)),
+        ),
+        h('div', { class: 'knopfreihe' }, hochladen, eigenes ? knopf('Foto entfernen', () => this.umbau((k) => (lies(k).bild = null))) : null, datei),
+        h('p', { class: 'hinweis' }, 'Das Foto bleibt auf deinem Gerät und dient nur der Vorschau. Motive mit geschützten Figuren können wir leider nicht drucken.'),
+      ),
     );
-    if (!a.bild) teile.push(auswahl('Beispielmotiv', a.motiv, archiv.auflegerMotive, (id) => this.setze((k) => (lies(k).motiv = id))));
     teile.push(
       auswahl(
         'Form',
@@ -472,6 +527,24 @@ export class Panel {
     );
   }
 
+  private wunsch = '';
+  private termin = '';
+
+  private anfrage(): Node[] {
+    const text = h('textarea', { rows: 4, placeholder: 'z. B. Lieblingsfarben, Figur, Thema, Allergien, Anzahl Gäste …' });
+    text.value = this.wunsch;
+    text.addEventListener('input', () => (this.wunsch = text.value));
+    const datum = h('input', { type: 'date', value: this.termin });
+    datum.addEventListener('input', () => (this.termin = datum.value));
+    return [
+      h('p', { class: 'hinweis' }, 'Dein Wunsch ist nicht dabei? Beschreib ihn uns – wir melden uns mit einem Angebot. Deine aktuelle Torte wird automatisch mitgeschickt.'),
+      feld('Dein Wunsch', text),
+      feld('Wunschtermin', datum),
+      knopf('Anfrage per E-Mail senden', () => anfrageSenden(this.k, this.wunsch, this.termin), 'haupt'),
+      h('p', { class: 'hinweis' }, 'Öffnet dein E-Mail-Programm. Eigene Fotos bitte dort anhängen.'),
+    ];
+  }
+
   /** Bleibt unten im Bedienfeld sichtbar. */
   private preisLeiste(): HTMLElement[] | null {
     this.preisEl = kosten.daten.einstellungen.preisAnzeigen ? h('div', { class: 'preis', 'aria-live': 'polite' }) : null;
@@ -495,24 +568,16 @@ export class Panel {
   }
 }
 
-/** Liest ein Foto ein und verkleinert es auf höchstens 1024 px Kantenlänge. */
-async function bildEinlesen(file: File): Promise<string> {
-  const url = URL.createObjectURL(file);
-  try {
-    const bild = new Image();
-    await new Promise<void>((ok, fehler) => {
-      bild.onload = () => ok();
-      bild.onerror = () => fehler(new Error('Bild konnte nicht gelesen werden'));
-      bild.src = url;
-    });
-    const max = 1024;
-    const k = Math.min(1, max / Math.max(bild.naturalWidth, bild.naturalHeight));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(bild.naturalWidth * k));
-    canvas.height = Math.max(1, Math.round(bild.naturalHeight * k));
-    canvas.getContext('2d')!.drawImage(bild, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.88);
-  } finally {
-    URL.revokeObjectURL(url);
+const vorschauen = new Map<string, string>();
+/** Kleines Vorschaubild eines gezeichneten Beispielmotivs. */
+function motivVorschau(m: AuflegerMotiv): string {
+  let url = vorschauen.get(m.id);
+  if (!url) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 160;
+    m.zeichne(c.getContext('2d')!, 160);
+    url = c.toDataURL('image/png');
+    vorschauen.set(m.id, url);
   }
+  return url;
 }
