@@ -4,6 +4,8 @@ import { kopie } from './modell/konfig';
 import type { KuchenKonfig } from './modell/typen';
 import { loadAllFonts } from './render/lettering';
 import { Stage } from './render/stage';
+import { kosten } from './kosten/speicher';
+import { AdminSeite } from './ui/admin';
 import { Panel } from './ui/panel';
 import { Store } from './ui/store';
 
@@ -22,6 +24,21 @@ const panel = new Panel(document.getElementById('panel')!, store, {
   },
 });
 
+// Admin-Seite unter #admin (Zutaten, Rezepte, Preise)
+const app = document.getElementById('app')!;
+const adminHost = document.getElementById('admin')!;
+const admin = new AdminSeite(adminHost, () => store.konfig);
+function route(): void {
+  const istAdmin = location.hash.startsWith('#admin');
+  app.hidden = istAdmin;
+  adminHost.hidden = !istAdmin;
+  document.title = istAdmin ? 'Leckermailchen – Zutaten & Preise' : 'Leckermailchen – Kuchen-Konfigurator';
+  if (istAdmin) admin.render();
+}
+window.addEventListener('hashchange', route);
+route();
+void kosten.laden();
+
 // Schriften laden: danach zeigt das Bedienfeld die Schriftvorschau in der echten Schrift
 void loadAllFonts().then(() => panel.render());
 
@@ -38,5 +55,6 @@ Object.assign(window, {
     },
     ansicht: () => stage.resetView(),
     schriftenBereit: () => loadAllFonts(),
+    kosten,
   },
 });

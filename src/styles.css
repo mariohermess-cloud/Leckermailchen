@@ -67,3 +67,69 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
   #app { grid-template-columns: 1fr; grid-template-rows: 46dvh minmax(0, 1fr); }
   #panel { border-left: 0; border-top: 1px solid var(--rand); }
 }
+
+/* ---------- Richtpreis ---------- */
+[hidden] { display: none !important; }
+.preis { position: sticky; bottom: 0; z-index: 2; display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 0 12px; padding: 10px 20px; background: #fffdfb; border-top: 1px solid var(--rand); box-shadow: 0 -6px 16px rgba(60, 40, 30, 0.06); }
+.preis-titel { font-size: 13px; color: var(--leise); }
+.preis-wert { font-size: 22px; font-variant-numeric: tabular-nums; grid-row: span 2; align-self: center; }
+.preis-info { font-size: 12.5px; color: var(--leise); }
+
+/* ---------- Admin ---------- */
+#admin { min-height: 100vh; background: #fff; }
+.admin-kopf { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 24px 8px; max-width: 1200px; margin: 0 auto; }
+.admin-kopf h1 { margin: 0; font-size: 22px; }
+.admin-kopf a.knopf { text-decoration: none; white-space: nowrap; }
+.admin-status { margin: 2px 0 0; font-size: 13px; color: var(--leise); }
+.admin-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 0 24px; border-bottom: 1px solid var(--rand); max-width: 1200px; margin: 0 auto; }
+.admin-tabs button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; cursor: pointer; color: var(--leise); white-space: nowrap; }
+.admin-tabs button.aktiv { color: var(--text); border-bottom-color: var(--akzent); font-weight: 600; }
+.admin-inhalt { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; display: grid; gap: 14px; }
+.admin-inhalt h2 { font-size: 16px; margin: 6px 0 8px; }
+.admin-hilfe { margin: 0; font-size: 13.5px; color: var(--leise); max-width: 80ch; }
+.admin-leiste { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.admin-suche { font: inherit; padding: 8px 10px; border: 1px solid var(--rand); border-radius: 8px; min-width: 220px; flex: 1; max-width: 360px; }
+.admin-tabelle-rahmen { overflow-x: auto; }
+.admin-tabelle { width: 100%; border-collapse: collapse; font-size: 14px; }
+.admin-tabelle th, .admin-tabelle td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--rand); vertical-align: middle; }
+.admin-tabelle thead th { font-size: 12.5px; color: var(--leise); font-weight: 600; }
+.admin-tabelle tr.gruppe th { background: var(--flaeche); font-size: 13px; padding-top: 10px; }
+.admin-tabelle input[type='text'], .admin-tabelle select { padding: 5px 7px; font-size: 14px; min-width: 0; }
+.admin-tabelle .stark td { font-weight: 650; }
+.admin-tabelle .gross td { font-size: 17px; color: var(--akzent); }
+.rechts { text-align: right !important; font-variant-numeric: tabular-nums; }
+.leise { color: var(--leise); }
+.nowrap { white-space: nowrap; }
+.zahlfeld { font: inherit; padding: 5px 7px; border: 1px solid var(--rand); border-radius: 7px; text-align: right; font-variant-numeric: tabular-nums; }
+.zahlfeld.schmal { width: 84px; }
+.zahlfeld.fehler { border-color: #c0392b; background: #fdf0ee; }
+.admin-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-chips button { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 16px; border: 1px solid var(--rand); background: var(--flaeche); cursor: pointer; }
+.admin-chips button.aktiv { background: var(--akzent); border-color: var(--akzent); color: #fff; }
+.rezept-karte { border: 1px solid var(--rand); border-radius: 12px; background: var(--flaeche); }
+.rezept-karte > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; }
+.rezept-karte > summary::-webkit-details-marker { display: none; }
+.rezept-titel { display: grid; font-weight: 600; }
+.rezept-titel .leise { font-weight: 400; font-size: 12.5px; }
+.rezept-summe { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.rezept-inhalt { padding: 4px 14px 14px; display: grid; gap: 10px; background: #fff; border-radius: 0 0 12px 12px; }
+.admin-reihe { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; }
+.admin-reihe label { display: grid; gap: 3px; font-size: 12.5px; color: var(--leise); }
+.admin-reihe label.breit { flex: 1; min-width: 200px; }
+.admin-reihe select, .admin-reihe input[type='text']:not(.zahlfeld) { color: var(--text); }
+.zuordnung-raster { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+.zuordnung { border: 1px solid var(--rand); border-radius: 12px; padding: 10px 14px 14px; margin: 0; display: grid; gap: 8px; }
+.zuordnung legend { font-weight: 650; padding: 0 4px; }
+.zuordnung-zeile { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; align-items: center; font-size: 14px; }
+.zuordnung-zeile select { padding: 5px 7px; font-size: 14px; }
+.zuordnung-zeile .nowrap { justify-self: end; }
+.admin-warnung { background: #fff6e0; border: 1px solid #f0d58a; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; display: grid; gap: 4px; }
+.admin-karte { border: 1px solid var(--rand); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
+.admin-karte ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+@media (max-width: 700px) {
+  .admin-kopf, .admin-inhalt { padding-left: 16px; padding-right: 16px; }
+  .admin-tabs { padding: 0 8px; }
+  .zuordnung-raster { grid-template-columns: minmax(0, 1fr); }
+  .zuordnung-zeile { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .zuordnung-zeile .nowrap { justify-self: start; }
+}

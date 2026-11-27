@@ -28,7 +28,7 @@ export const themen: ThemaEintrag[] = [
     quelle: ['K262', 'K081'],
     konfig: konfig({
       thema: 'sahne-erdbeer',
-      etagen: [neueEtage({ durchmesser: 24, hoehe: 9, ueberzug: 'gekaemmt', farbe: f('weiss'), borduereOben: bord('tupfen', 'weiss'), borduereUnten: bord('tupfen', 'weiss') })],
+      etagen: [neueEtage({ durchmesser: 24, hoehe: 9, ueberzug: 'gekaemmt', teig: 'biskuit', fuellung: 'fuellungSahneErdbeer', farbe: f('weiss'), borduereOben: bord('tupfen', 'weiss'), borduereUnten: bord('tupfen', 'weiss') })],
       topper: [neuerTopper({ typ: 'erdbeeren', anordnung: 'halbmond', anzahl: 7 })],
       schrift: [zahl('17', 'rosa', { x: 0.35 }), schild('Lea', 'wolke', 'rosa', { x: 0.1 }), stecker('pink')],
       seed: 3,
@@ -61,7 +61,7 @@ export const themen: ThemaEintrag[] = [
     konfig: konfig({
       thema: 'fruechte-blech',
       form: 'rechteck',
-      etagen: [neueEtage({ durchmesser: 34, hoehe: 7, ueberzug: 'sahne', farbe: f('cremeweiss'), borduereOben: bord('tupfen', 'cremeweiss') })],
+      etagen: [neueEtage({ durchmesser: 34, hoehe: 7, ueberzug: 'sahne', teig: 'biskuit', fuellung: 'fuellungSahneErdbeer', farbe: f('cremeweiss'), borduereOben: bord('tupfen', 'cremeweiss') })],
       streusel: { typ: 'mandeln', palette: 'weiss', menge: 0.8, bereich: 'seiteGanz' },
       topper: [neuerTopper({ typ: 'beerenmix', anordnung: 'verstreut', anzahl: 40 })],
       schrift: [stecker('tuerkis', { versatz: -0.3 })],
@@ -211,7 +211,7 @@ export const themen: ThemaEintrag[] = [
     konfig: konfig({
       thema: 'schoko',
       form: 'rechteck',
-      etagen: [neueEtage({ durchmesser: 32, hoehe: 7, ueberzug: 'ganache', farbe: f('schoko'), borduereOben: bord('tupfen', 'cremeweiss') })],
+      etagen: [neueEtage({ durchmesser: 32, hoehe: 7, ueberzug: 'ganache', teig: 'schokoteig', fuellung: 'fuellungGanache', farbe: f('schoko'), borduereOben: bord('tupfen', 'cremeweiss') })],
       streusel: { typ: 'raspel', palette: 'schoko', menge: 0.8, bereich: 'seiteGanz' },
       topper: [neuerTopper({ typ: 'kugeln', anordnung: 'verstreut', anzahl: 10, farbe: f('zartbitter') })],
       schrift: [neueSchrift({ text: 'Alles Gute', schrift: 'pacifico', farbe: f('weiss'), groesse: 2.4, versatz: 0.2 }), stecker('gold', { versatz: -0.45 })],
