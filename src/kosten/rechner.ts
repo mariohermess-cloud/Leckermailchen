@@ -178,6 +178,11 @@ export function berechne(k: KuchenKonfig, daten: KostenDaten): Kalkulation {
   if (k.aufleger.aktiv) {
     verwende(zo.aufleger, { stueck: 1 }, 'Deko', 'Fotoaufleger');
     minuten += m.aufleger;
+    if (k.aufleger.katalog) {
+      const motiv = daten.katalog.find((x) => x.id === k.aufleger.katalog);
+      if (motiv) posten.push({ gruppe: 'Deko', text: `Katalogmotiv: ${motiv.name}`, kosten: motiv.kosten });
+      else hinweise.push(`Katalogmotiv „${k.aufleger.katalog}“ fehlt`);
+    }
   }
 
   verwende(zo.platte[k.platte.typ], { stueck: 1 }, 'Zubehör', 'Platte');

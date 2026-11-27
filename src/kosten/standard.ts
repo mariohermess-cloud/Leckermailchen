@@ -148,6 +148,7 @@ export const STANDARD_FUELLUNG = 'fuellungButtercreme';
 export function standardDaten(): KostenDaten {
   return {
     version: 1,
+    katalog: [],
     zutaten: ZUTATEN.map((x) => ({ ...x })),
     rezepte: REZEPTE.map((x) => ({ ...x, referenz: { ...x.referenz }, positionen: x.positionen.map((p) => ({ ...p })) })),
     zuordnung: {
@@ -232,6 +233,7 @@ export function standardDaten(): KostenDaten {
       mindestpreis: 35,
       portionFlaeche: 33,
       preisAnzeigen: true,
+      anfrageEmail: '',
     },
   };
 }

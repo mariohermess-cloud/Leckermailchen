@@ -46,6 +46,17 @@ Es gibt noch keinen Server: Änderungen werden im Browser gespeichert. Für alle
 sobald die exportierte `kosten.json` nach `public/kosten.json` ins Repository gelegt wird.
 Code: `src/kosten/` (Modell, Beispieldaten, Rechner, Speicher), `src/ui/admin.ts`.
 
+## Motivkatalog & Trends
+
+- In der Verwaltung (`#admin`) gibt es den Tab **Motivkatalog**. Dort ladet ihr eigene Druckmotive hoch, mit Thema, Druckkosten und den Schaltern **Trend** und **Sichtbar**.
+  Kunden wählen sie im Konfigurator beim Fotoaufleger aus. Trend-Motive stehen ganz vorn, die Druckkosten fließen in den Preis ein.
+- Selbst gezeichnete Beispielmotive ohne Lizenzfiguren: Comic „POW!“, Superheld-Wappen, Pixel-Spiel, Weltraum.
+  Dazu die Vorlagen **Superheld**, **Comic-Party**, **Gaming** und **Weltraum**.
+- Bevor ein Kunde ein eigenes Foto hochladen kann, muss er bestätigen, dass er die Rechte am Bild hat.
+- **Wunschanfrage**: Ist unter Kalkulation eine E-Mail-Adresse eingetragen, erscheint im Konfigurator der Abschnitt „Anfrage senden“.
+  Er öffnet das E-Mail-Programm mit der fertigen Tortenbeschreibung, dem Wunschtext und dem Termin.
+- KI-Prompts für eigene Figuren und Themenbilder: [`docs/ki-prompts.md`](docs/ki-prompts.md).
+
 ## Noch offen
 
 - Modellierte 3D-Figuren (Traktor, Dinos, Einhorn …) gibt es bisher nur als flache Motive.

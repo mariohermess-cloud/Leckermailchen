@@ -1,5 +1,5 @@
 import type { BorduereKonfig, KuchenKonfig, ThemaEintrag } from '../modell/typen';
-import { leereKonfig, neueEtage, neueSchrift, neuesSymbol, neuerTopper } from '../modell/konfig';
+import { keinAufleger, leereKonfig, neueEtage, neueSchrift, neuesSymbol, neuerTopper } from '../modell/konfig';
 import { farbeNachId as f } from './farben';
 
 function konfig(teil: Partial<KuchenKonfig>): KuchenKonfig {
@@ -140,7 +140,7 @@ export const themen: ThemaEintrag[] = [
       thema: 'fototorte',
       form: 'rechteck',
       etagen: [neueEtage({ durchmesser: 34, hoehe: 7, ueberzug: 'fondant', farbe: f('weiss'), borduereUnten: bord('perlen', 'weiss') })],
-      aufleger: { aktiv: true, form: 'rechteck', groesse: 0.7, bild: null, motiv: 'foto', x: -0.3, y: 0, rand: true, randFarbe: f('weiss') },
+      aufleger: { ...keinAufleger(), aktiv: true, form: 'rechteck', groesse: 0.7, motiv: 'foto', x: -0.3, y: 0, rand: true, randFarbe: f('weiss') },
       topper: [neuerTopper({ typ: 'macarons', anordnung: 'verstreut', anzahl: 3, farbe: f('gelb') }), neuerTopper({ typ: 'kugeln', anordnung: 'verstreut', anzahl: 6, farbe: f('schoko') })],
       schrift: [stecker('gold', { x: 0.5, versatz: -0.4, groesse: 1.8 })],
       seed: 12,
@@ -233,6 +233,76 @@ export const themen: ThemaEintrag[] = [
       ],
       schrift: [schild('Dylan', 'wolke', 'hellblau', { x: 0 }), zahl('11', 'blau', { x: 0.45, versatz: -0.3, groesse: 4.5 }), stecker('blau', { x: -0.1 })],
       seed: 2,
+    }),
+  },
+  {
+    id: 'superheld',
+    name: 'Superheld',
+    anlass: 'Kindergeburtstag',
+    beschreibung: 'Rot-blaue Heldentorte mit eigenem Wappen-Aufleger, Blitzen und Comic-Sternen – ohne Lizenzfiguren',
+    quelle: ['K359', 'K360', 'K047'],
+    konfig: konfig({
+      thema: 'superheld',
+      etagen: [
+        neueEtage({ durchmesser: 24, hoehe: 10, ueberzug: 'fondant', farbe: f('blau'), borduereUnten: bord('perlen', 'rot') }),
+        neueEtage({ durchmesser: 16, hoehe: 10, ueberzug: 'fondant', farbe: f('rot'), borduereUnten: bord('perlen', 'gelb') }),
+      ],
+      aufleger: { ...keinAufleger(), aktiv: true, form: 'rund', groesse: 0.62, motiv: 'superheld', x: -0.28, y: 0.05, rand: true, randFarbe: f('gelb') },
+      symbole: [
+        neuesSymbol({ symbol: 'blitz', farbe: f('gelb'), ort: 'seite', etage: 0, groesse: 3.2, hoehe: 0.5, anzahl: 6 }),
+        neuesSymbol({ symbol: 'stern', farbe: f('weiss'), ort: 'seite', etage: 1, groesse: 2, hoehe: 0.5, anzahl: 7 }),
+      ],
+      schrift: [zahl('7', 'gelb', { x: 0.66, versatz: 0.1, groesse: 4.2 })],
+      seed: 21,
+    }),
+  },
+  {
+    id: 'comic',
+    name: 'Comic-Party',
+    anlass: 'Kindergeburtstag · Jugend',
+    beschreibung: 'Gelbe Torte mit „POW!“-Aufleger, Comic-Explosionen und schwarzer Tupfenbordüre',
+    quelle: ['K359'],
+    konfig: konfig({
+      thema: 'comic',
+      etagen: [neueEtage({ durchmesser: 26, hoehe: 9, ueberzug: 'fondant', farbe: f('gelb'), borduereUnten: bord('tupfen', 'schwarz'), borduereOben: bord('tupfen', 'schwarz') })],
+      aufleger: { ...keinAufleger(), aktiv: true, form: 'rund', groesse: 0.72, motiv: 'comic', y: -0.1, rand: false },
+      symbole: [neuesSymbol({ symbol: 'comicstern', farbe: f('rot'), farbe2: f('weiss'), ort: 'seite', groesse: 4, hoehe: 0.5, anzahl: 5 })],
+      schrift: [schild('Ben', 'banner', 'blau', { versatz: 0.72, groesse: 1.4, farbe: f('weiss') })],
+      seed: 4,
+    }),
+  },
+  {
+    id: 'gaming',
+    name: 'Gaming „Level up“',
+    anlass: 'Geburtstag · Jugend',
+    beschreibung: 'Rechteckige Torte mit Pixel-Aufleger, grüner Grasbordüre und stehender Zahl',
+    quelle: ['K047'],
+    konfig: konfig({
+      thema: 'gaming',
+      form: 'rechteck',
+      etagen: [neueEtage({ durchmesser: 30, hoehe: 8, ueberzug: 'fondant', farbe: f('schwarz'), borduereUnten: bord('gras', 'hellgruen') })],
+      aufleger: { ...keinAufleger(), aktiv: true, form: 'rechteck', groesse: 0.66, motiv: 'pixel', x: -0.2, rand: true, randFarbe: f('hellgruen') },
+      symbole: [neuesSymbol({ symbol: 'blitz', farbe: f('hellgruen'), ort: 'seite', groesse: 2.6, hoehe: 0.55, anzahl: 8 })],
+      schrift: [zahl('12', 'hellgruen', { x: 0.62, versatz: 0, groesse: 4.5 })],
+      seed: 9,
+    }),
+  },
+  {
+    id: 'weltraum',
+    name: 'Weltraum',
+    anlass: 'Kindergeburtstag',
+    beschreibung: 'Dunkelblaue Torte mit Weltraum-Aufleger, Raketen, Sternen und goldenem Drip',
+    quelle: [],
+    konfig: konfig({
+      thema: 'weltraum',
+      etagen: [neueEtage({ durchmesser: 20, hoehe: 12, ueberzug: 'fondant', farbe: f('dunkelblau'), drip: { aktiv: true, farbe: f('gold'), laenge: 0.4, dichte: 0.5 }, borduereUnten: bord('perlen', 'gold') })],
+      aufleger: { ...keinAufleger(), aktiv: true, form: 'rund', groesse: 0.78, motiv: 'weltraum', rand: true, randFarbe: f('gold') },
+      symbole: [
+        neuesSymbol({ symbol: 'rakete', farbe: f('weiss'), farbe2: f('rot'), ort: 'seite', groesse: 4, hoehe: 0.4, anzahl: 3 }),
+        neuesSymbol({ symbol: 'stern', farbe: f('gold'), ort: 'seite', groesse: 1.6, hoehe: 0.45, anzahl: 9, winkel: 20 }),
+      ],
+      topper: [neuerTopper({ typ: 'kugeln', anordnung: 'verstreut', anzahl: 6, farbe: f('gold') })],
+      seed: 15,
     }),
   },
 ];

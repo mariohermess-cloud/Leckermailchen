@@ -137,6 +137,10 @@ export interface AuflegerKonfig {
   /** gespritzter Rand um den Aufleger */
   rand: boolean;
   randFarbe: string;
+  /** id eines Motivs aus dem Motivkatalog der Backstube (null = eigenes Foto bzw. Beispielmotiv) */
+  katalog: string | null;
+  /** Kunde hat bestätigt, die Rechte am hochgeladenen Bild zu besitzen */
+  rechte: boolean;
 }
 
 export interface PlatteKonfig {

@@ -1,8 +1,9 @@
 import { archiv } from '../archiv';
 import { berechne, euro, rezeptKosten } from '../kosten/rechner';
 import { kosten } from '../kosten/speicher';
-import type { Arbeitszeit, Bezug, Einheit, Einstellungen, Rezept, RezeptArt, Zuordnung, Zutat } from '../kosten/typen';
+import type { KatalogMotiv, Arbeitszeit, Bezug, Einheit, Einstellungen, Rezept, RezeptArt, Zuordnung, Zutat } from '../kosten/typen';
 import type { KuchenKonfig } from '../modell/typen';
+import { bildEinlesen } from './bild';
 import { h, knopf } from './elemente';
 
 /**
@@ -10,9 +11,10 @@ import { h, knopf } from './elemente';
  * Konfigurator-Elementen, Kalkulationsgrundlagen und eine Testrechnung der aktuellen Torte.
  */
 
-type Tab = 'zutaten' | 'rezepte' | 'zuordnung' | 'kalkulation' | 'test' | 'daten';
+type Tab = 'katalog' | 'zutaten' | 'rezepte' | 'zuordnung' | 'kalkulation' | 'test' | 'daten';
 
 const TABS: Array<{ id: Tab; name: string }> = [
+  { id: 'katalog', name: 'Motivkatalog' },
   { id: 'zutaten', name: 'Zutaten' },
   { id: 'rezepte', name: 'Rezepte' },
   { id: 'zuordnung', name: 'Zuordnung' },
@@ -89,7 +91,7 @@ function grundpreis(z: Zutat): string {
 }
 
 export class AdminSeite {
-  private tab: Tab = 'zutaten';
+  private tab: Tab = 'katalog';
   private suche = '';
   private artFilter: RezeptArt | 'alle' = 'alle';
   private offeneRezepte = new Set<string>();
@@ -103,8 +105,13 @@ export class AdminSeite {
     return kosten.daten;
   }
 
+  private speicherWarnung = false;
+
   private speichern(): void {
-    kosten.geaendert();
+    if (!kosten.geaendert() && !this.speicherWarnung) {
+      this.speicherWarnung = true;
+      alert('Der Browser konnte die Änderungen nicht dauerhaft speichern (Speicher voll oder privater Modus). Bitte „kosten.json herunterladen“, damit nichts verloren geht – oder Bilder verkleinern bzw. löschen.');
+    }
     const status = this.host.querySelector('.admin-status');
     if (status) status.textContent = QUELLEN[kosten.quelle];
   }
@@ -120,6 +127,7 @@ export class AdminSeite {
       tabs.append(b);
     }
     const inhalt = {
+      katalog: () => this.katalog(),
       zutaten: () => this.zutaten(),
       rezepte: () => this.rezepte(),
       zuordnung: () => this.zuordnung(),
@@ -131,12 +139,70 @@ export class AdminSeite {
       h(
         'header',
         { class: 'admin-kopf' },
-        h('div', {}, h('h1', {}, 'Zutaten & Preise'), h('p', { class: 'admin-status' }, QUELLEN[kosten.quelle])),
+        h('div', {}, h('h1', {}, 'Verwaltung'), h('p', { class: 'admin-status' }, QUELLEN[kosten.quelle])),
         h('a', { class: 'knopf', href: '#' }, '← Zum Konfigurator'),
       ),
       tabs,
       h('section', { class: 'admin-inhalt' }, ...inhalt),
     );
+  }
+
+  /* ---------- Motivkatalog ---------- */
+
+  private katalog(): Node[] {
+    const datei = h('input', { type: 'file', accept: 'image/*', multiple: true, class: 'versteckt' });
+    datei.addEventListener('change', () => {
+      const dateien = [...(datei.files ?? [])];
+      void Promise.all(dateien.map((f) => bildEinlesen(f, 768, 0.82).then((bild) => ({ f, bild })))).then((liste) => {
+        for (const { f, bild } of liste) {
+          this.d.katalog.push({ id: neueId('m'), name: f.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '), thema: 'Neu', bild, kosten: 1.5, trend: false, aktiv: true });
+        }
+        this.speichern();
+        this.render();
+      });
+    });
+    const themen = [...new Set(this.d.katalog.map((m) => m.thema))].sort((a, b) => a.localeCompare(b, 'de'));
+    return [
+      h(
+        'p',
+        { class: 'admin-hilfe' },
+        'Eigene Druckmotive für den Fotoaufleger. Kunden sehen alle aktiven Motive im Konfigurator, „Trend“-Motive ganz vorn. Bitte nur selbst gestaltete Motive ohne geschützte Figuren, Namen oder Logos verwenden. Bilder werden auf 768 px verkleinert.',
+      ),
+      h('div', { class: 'admin-leiste' }, h('span', { class: 'leise' }, `${this.d.katalog.length} Motive · ${this.d.katalog.filter((m) => m.trend).length} Trend`), knopf('+ Bilder hochladen', () => datei.click(), 'haupt'), datei),
+      h('datalist', { id: 'katalog-themen' }, ...themen.map((t) => h('option', { value: t }))),
+      this.d.katalog.length
+        ? h('div', { class: 'katalog-raster' }, ...this.d.katalog.map((m) => this.katalogKarte(m)))
+        : h('div', { class: 'admin-karte' }, h('p', { class: 'admin-hilfe' }, 'Noch keine Motive. Lade eure selbst gestalteten Motive hoch, z. B. aus den KI-Prompts in docs/ki-prompts.md.')),
+    ];
+  }
+
+  private katalogKarte(m: KatalogMotiv): HTMLElement {
+    const trend = h('input', { type: 'checkbox' });
+    trend.checked = m.trend;
+    trend.addEventListener('change', () => ((m.trend = trend.checked), this.speichern()));
+    const aktiv = h('input', { type: 'checkbox' });
+    aktiv.checked = m.aktiv;
+    aktiv.addEventListener('change', () => ((m.aktiv = aktiv.checked), karte.classList.toggle('inaktiv', !m.aktiv), this.speichern()));
+    const karte = h(
+      'div',
+      { class: `katalog-karte${m.aktiv ? '' : ' inaktiv'}` },
+      h('img', { src: m.bild, alt: m.name }),
+      h('label', {}, 'Name', textEingabe(m.name, (w) => ((m.name = w), this.speichern()))),
+      h('label', {}, 'Thema', textEingabe(m.thema, (w) => ((m.thema = w), this.speichern()), { list: 'katalog-themen' })),
+      h('label', {}, 'Druckkosten (€)', zahlFeld(m.kosten, (w) => ((m.kosten = w), this.speichern()))),
+      h('div', { class: 'katalog-schalter' }, h('label', { class: 'schalter' }, trend, h('span', {}, 'Trend')), h('label', { class: 'schalter' }, aktiv, h('span', {}, 'Sichtbar'))),
+      knopf(
+        'Löschen',
+        () => {
+          if (!confirm(`Motiv „${m.name}“ löschen?`)) return;
+          this.d.katalog = this.d.katalog.filter((x) => x !== m);
+          this.speichern();
+          this.render();
+        },
+        'klein',
+      ),
+    );
+    return karte;
   }
 
   /* ---------- Zutaten ---------- */
@@ -428,7 +494,7 @@ export class AdminSeite {
 
   private kalkulation(): Node[] {
     const e = this.d.einstellungen;
-    const feld = (name: string, key: keyof Omit<Einstellungen, 'minuten' | 'preisAnzeigen'>, einheit: string) =>
+    const feld = (name: string, key: keyof Omit<Einstellungen, 'minuten' | 'preisAnzeigen' | 'anfrageEmail'>, einheit: string) =>
       h('label', { class: 'zuordnung-zeile' }, h('span', {}, name), h('span', { class: 'nowrap' }, zahlFeld(e[key], (w) => ((e[key] = w), this.speichern())), ` ${einheit}`));
     const minute = (name: string, key: keyof Arbeitszeit) =>
       h('label', { class: 'zuordnung-zeile' }, h('span', {}, name), h('span', { class: 'nowrap' }, zahlFeld(e.minuten[key], (w) => ((e.minuten[key] = w), this.speichern())), ' min'));
@@ -451,6 +517,12 @@ export class AdminSeite {
           feld('Mindestpreis', 'mindestpreis', '€'),
           feld('Fläche je Portion', 'portionFlaeche', 'cm²'),
           h('label', { class: 'schalter' }, anzeigen, h('span', {}, 'Richtpreis im Konfigurator anzeigen')),
+          h(
+            'label',
+            { class: 'zuordnung-zeile' },
+            h('span', {}, 'E-Mail für Wunschanfragen (leer = aus)'),
+            textEingabe(e.anfrageEmail, (w) => ((e.anfrageEmail = w.trim()), this.speichern()), { type: 'email', placeholder: 'bestellung@…' }),
+          ),
         ),
         h(
           'fieldset',
