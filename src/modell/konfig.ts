@@ -48,6 +48,8 @@ export function neueEtage(teil: Partial<EtageKonfig> = {}): EtageKonfig {
     hoehe: 10,
     ueberzug: 'buttercreme',
     farbe: '#f6f3ee',
+    teig: 'ruehrteig',
+    fuellung: 'fuellungButtercreme',
     drip: keinDrip(),
     borduereUnten: keineBorduere(),
     borduereOben: keineBorduere(),
@@ -142,6 +144,8 @@ export function bereinige(k: KuchenKonfig): KuchenKonfig {
     const max = i === 0 ? d.max : k.etagen[i - 1].durchmesser - GRENZEN.etagenStufe;
     etage.durchmesser = begrenze(etage.durchmesser, Math.min(min, max), Math.max(min, max));
     etage.hoehe = begrenze(etage.hoehe, h.min, h.max);
+    etage.teig = etage.teig || 'ruehrteig';
+    etage.fuellung = etage.fuellung || 'fuellungButtercreme';
     etage.drip.laenge = begrenze(etage.drip.laenge, 0, 1);
     etage.drip.dichte = begrenze(etage.drip.dichte, 0, 1);
   });

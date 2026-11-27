@@ -30,6 +30,22 @@ npm run dev
 
 Vorlagen in `src/archiv/themen.ts` verweisen über `quelle` auf die Motiv-IDs der Analyse.
 
+## Kosten & Preise (Admin)
+
+Unter `…/#admin` (z. B. `https://mariohermess-cloud.github.io/Leckermailchen/#admin`) pflegt die Backstube:
+
+- **Zutaten** mit Packungsgröße und Einkaufspreis (Grundpreis € / kg, l oder Stück wird berechnet)
+- **Rezepte** aus diesen Zutaten, bezogen auf eine runde Referenztorte (Standard Ø 26 × 8 cm). Der Rechner skaliert nach Volumen (Teig, Füllung), Oberfläche (Überzug, Streusel), Umfang (Bordüre, Drip) oder je Stück (Topper, Motive, Zubehör)
+- **Zuordnung**: welches Rezept für welchen Überzug, welche Bordüre, welchen Topper … verwendet wird
+- **Kalkulation**: Stundensatz, Arbeitszeit je Element, Aufschlag, MwSt., Rundung, Mindestpreis
+- **Testrechnung** der gerade konfigurierten Torte inkl. Einkaufsliste
+
+Teig und Füllung wählt der Kunde je Etage im Konfigurator; unten im Bedienfeld steht der Richtpreis.
+
+Es gibt noch keinen Server: Änderungen werden im Browser gespeichert. Für alle Besucher gelten sie,
+sobald die exportierte `kosten.json` nach `public/kosten.json` ins Repository gelegt wird.
+Code: `src/kosten/` (Modell, Beispieldaten, Rechner, Speicher), `src/ui/admin.ts`.
+
 ## Noch offen
 
 - Modellierte 3D-Figuren (Traktor, Dinos, Einhorn …) gibt es bisher nur als flache Motive.

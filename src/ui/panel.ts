@@ -21,6 +21,8 @@ import type {
   TopperAnordnung,
   TopperKonfig,
 } from '../modell/typen';
+import { kosten } from '../kosten/speicher';
+import { berechne, euro } from '../kosten/rechner';
 import { auswahl, farbwahl, feld, h, kacheln, knopf, prozent, regler, schalter, svg, textfeld } from './elemente';
 import type { Store } from './store';
 
@@ -33,6 +35,7 @@ export interface PanelAktionen {
 export class Panel {
   /** welche Abschnitte aufgeklappt sind (bleibt über Neuaufbau erhalten) */
   private offen = new Set<string>(['themen', 'form']);
+  private preisEl: HTMLElement | null = null;
 
   constructor(
     private readonly host: HTMLElement,
@@ -41,7 +44,9 @@ export class Panel {
   ) {
     store.abonnieren((_k, struktur) => {
       if (struktur) this.render();
+      else this.preisAktualisieren();
     });
+    kosten.abonnieren(() => this.render());
     this.render();
   }
 
@@ -64,7 +69,7 @@ export class Panel {
       h('header', { class: 'kopf' }, h('h1', {}, 'Wunschtorte gestalten'), h('p', {}, 'Vorlage wählen und nach Belieben anpassen.')),
       this.abschnitt('themen', 'Vorlagen', this.themen()),
       this.abschnitt('form', 'Form & Größe', this.form()),
-      this.abschnitt('ueberzug', 'Überzug & Farbe', this.ueberzug()),
+      this.abschnitt('ueberzug', 'Teig, Füllung & Überzug', this.ueberzug()),
       this.abschnitt('rand', 'Bordüren & Drip', this.rand()),
       this.abschnitt('schrift', 'Schrift, Namen & Zahlen', this.schrift(), this.k.schrift.length),
       this.abschnitt('aufleger', 'Fotoaufleger', this.aufleger(), this.k.aufleger.aktiv ? 1 : 0),
@@ -72,6 +77,7 @@ export class Panel {
       this.abschnitt('deko', 'Deko & Streusel', this.deko(), this.k.topper.length + (this.k.streusel.typ !== 'keine' ? 1 : 0)),
       this.abschnitt('platte', 'Tortenplatte', this.platte()),
       this.fuss(),
+      ...(this.preisLeiste() ?? []),
     );
     this.host.scrollTop = scroll;
   }
@@ -174,7 +180,18 @@ export class Panel {
         'text',
       ),
       farbwahl('Farbe des Kuchens', this.etage.farbe, (hex) => this.setze((k) => (k.etagen[i].farbe = hex))),
+      ...this.rezeptWahl(i),
     ].filter((n): n is HTMLElement => n !== null);
+  }
+
+  private rezeptWahl(i: number): HTMLElement[] {
+    const rezepte = kosten.daten.rezepte;
+    const teige = rezepte.filter((r) => r.art === 'teig').map((r) => ({ id: r.id, name: r.name }));
+    const fuellungen = [...rezepte.filter((r) => r.art === 'fuellung').map((r) => ({ id: r.id, name: r.name })), { id: 'keine', name: 'Ohne Füllung' }];
+    const liste: HTMLElement[] = [];
+    if (teige.length) liste.push(auswahl('Teig', this.etage.teig, teige, (id) => this.setze((k) => (k.etagen[i].teig = id))));
+    liste.push(auswahl('Füllung', this.etage.fuellung, fuellungen, (id) => this.setze((k) => (k.etagen[i].fuellung = id))));
+    return liste;
   }
 
   /* ---------- Bordüren & Drip ---------- */
@@ -444,6 +461,24 @@ export class Panel {
     return [auswahl('Tortenplatte', this.k.platte.typ, archiv.platten, (id) => this.setze((k) => (k.platte.typ = id)))];
   }
 
+  private preisAktualisieren(): void {
+    if (!this.preisEl) return;
+    const e = kosten.daten.einstellungen;
+    const kalk = berechne(this.k, kosten.daten);
+    this.preisEl.replaceChildren(
+      h('span', { class: 'preis-titel' }, 'Richtpreis'),
+      h('strong', { class: 'preis-wert' }, `ca. ${euro(kalk.preis)}`),
+      h('span', { class: 'preis-info' }, `für ca. ${kalk.portionen} Stück · inkl. ${e.mwst.toString().replace('.', ',')} % MwSt.`),
+    );
+  }
+
+  /** Bleibt unten im Bedienfeld sichtbar. */
+  private preisLeiste(): HTMLElement[] | null {
+    this.preisEl = kosten.daten.einstellungen.preisAnzeigen ? h('div', { class: 'preis', 'aria-live': 'polite' }) : null;
+    this.preisAktualisieren();
+    return this.preisEl ? [this.preisEl] : null;
+  }
+
   private fuss(): HTMLElement {
     return h(
       'footer',
@@ -455,7 +490,7 @@ export class Panel {
         knopf('Ansicht zurücksetzen', this.aktionen.ansichtZuruecksetzen),
         knopf('Neu verteilen', () => this.setze((k) => (k.seed = (k.seed % 9973) + 1))),
       ),
-      h('p', { class: 'hinweis' }, 'Vorschau zur Orientierung – Farben und Details der fertigen Torte können leicht abweichen.'),
+      h('p', { class: 'hinweis' }, 'Vorschau zur Orientierung – Farben und Details der fertigen Torte können leicht abweichen. Der Richtpreis ist unverbindlich.'),
     );
   }
 }

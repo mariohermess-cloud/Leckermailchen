@@ -30,6 +30,10 @@ export interface EtageKonfig {
   /** id eines Überzugs aus dem Archiv */
   ueberzug: string;
   farbe: string;
+  /** id eines Teig-Rezepts aus den Kostendaten */
+  teig: string;
+  /** id eines Füllungs-Rezepts aus den Kostendaten, 'keine' = ohne Füllung */
+  fuellung: string;
   drip: DripKonfig;
   borduereUnten: BorduereKonfig;
   borduereOben: BorduereKonfig;
